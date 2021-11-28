@@ -1630,6 +1630,7 @@ int adxl367_probe(struct device *dev, const struct adxl367_ops *ops,
 		return -ENOMEM;
 
 	st->dready_trig->ops = &adxl367_trigger_ops;
+	st->dready_trig->dev.parent = st->dev;
 	iio_trigger_set_drvdata(st->dready_trig, indio_dev);
 
 	ret = devm_iio_trigger_register(st->dev, st->dready_trig);
