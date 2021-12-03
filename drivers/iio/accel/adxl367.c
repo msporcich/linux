@@ -1625,7 +1625,7 @@ int adxl367_probe(struct device *dev, const struct adxl367_ops *ops,
 
 	st->dready_trig = devm_iio_trigger_alloc(st->dev, "%s-dev%d",
 						 indio_dev->name,
-						 iio_device_id(indio_dev));
+						 indio_dev->id);
 	if (!st->dready_trig)
 		return -ENOMEM;
 
