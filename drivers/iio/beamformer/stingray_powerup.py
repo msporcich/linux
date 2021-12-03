@@ -1,40 +1,36 @@
 import os
 import sys
-#import subprocess
-#import re
 from time import sleep
-import string
 
 class IIO:
-	# _ip='10.48.65.111'
-	_ip='localhost'
-
 	def write_reg(self, dev_name, reg, val):
-		value = os.popen('iio_reg -u ip:' + self._ip + ' ' + dev_name + ' ' + str(reg) + ' ' + str(val)).read()
+		# print('iio_reg ' + dev_name + ' ' + str(reg) + ' ' + str(val))
+		value = os.popen('iio_reg ' + dev_name + ' ' + str(reg) + ' ' + str(val)).read()
 		if value == '':
 			return ''
 		return int(value, 16)
 
 	def read_reg(self, dev_name, reg):
-		value = os.popen('iio_reg -u ip:' + self._ip + ' ' + dev_name + ' ' + str(reg)).read()
+		value = os.popen('iio_reg ' + dev_name + ' ' + str(reg)).read()
 		if value == '':
 			return ''
 		return int(value, 16)
 
 	def write_dev_attr(self, dev_name, attr, val):
-		value = os.popen('iio_attr -u ip:' + self._ip + ' -d ' + dev_name + ' ' + str(attr) + ' ' + str(val)).read()
+		# print('iio_attr -d ' + dev_name + ' ' + str(attr) + ' ' + str(val))
+		value = os.popen('iio_attr -d ' + dev_name + ' ' + str(attr) + ' ' + str(val)).read()
 		if value == '':
 			return ''
 		return int(value, 10)
 
 	def read_dev_attr(self, dev_name, attr):
-		value = os.popen('iio_attr -u ip:' + self._ip + ' -d ' + dev_name + ' ' + str(attr)).read()
+		value = os.popen('iio_attr -d ' + dev_name + ' ' + str(attr)).read()
 		if value == '':
 			return ''
 		return int(value, 10)
 
 	def write_dev_ch_attr(self, dev_name, channel, attr, val, dir = ''):
-		value = os.popen('iio_attr -u ip:' + self._ip + ' -c ' + dir + ' ' + dev_name + ' ' + str(channel) + ' ' + str(attr) + ' ' + str(val)).read()
+		value = os.popen('iio_attr -c ' + dir + ' ' + dev_name + ' ' + str(channel) + ' ' + str(attr) + ' ' + str(val)).read()
 		if value == '':
 			return ''
 		try:
@@ -43,7 +39,7 @@ class IIO:
 			return value
 
 	def read_dev_ch_attr(self, dev_name, channel, attr):
-		value = os.popen('iio_attr -u ip:' + self._ip + ' -c ' + dev_name + ' ' + str(channel) + ' ' + str(attr)).read()
+		value = os.popen('iio_attr -c ' + dev_name + ' ' + str(channel) + ' ' + str(attr)).read()
 		if value == '':
 			return ''
 		return int(value, 10)
@@ -58,7 +54,6 @@ class Ltc2992:
 
 	def export_gpios(self):
 		devices = os.popen('grep "" /sys/class/gpio/gpiochip*/device/name').read()
-		# devices = os.popen('grep "" ~/adar1000/gpio/gpiochip*/device/name').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if self._dev_name in line:
@@ -81,7 +76,6 @@ class Ltc2992:
 	def get_gpio(self):
 		device = ''
 		devices = os.popen('ls /sys/class/gpio').read()
-		# devices = os.popen('ls ~/adar1000/gpio').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if (self._dev_name in line) & ('GPIO1' in line):
@@ -93,7 +87,6 @@ class Ltc2992:
 
 	def power_sequencer_enable(self):
 		value = os.popen('cat /sys/class/gpio/' + self._gpio_name + '1/value').read()
-		# value = os.popen('grep "" ~/adar1000/gpio/' + self._gpio_name + '1/value').read()
 		if value == '':
 			return 0
 		val = int(value, 10)
@@ -101,7 +94,6 @@ class Ltc2992:
 
 	def p5v_enable(self):
 		value = os.popen('cat /sys/class/gpio/' + self._gpio_name + '2/value').read()
-		# value = os.popen('grep "" ~/adar1000/gpio/' + self._gpio_name + '2/value').read()
 		if value == '':
 			return 0
 		val = int(value, 10)
@@ -109,7 +101,6 @@ class Ltc2992:
 
 	def power_sequencer_power_good(self):
 		value = os.popen('cat /sys/class/gpio/' + self._gpio_name + '3/value').read()
-		# value = os.popen('grep "" ~/adar1000/gpio/' + self._gpio_name + '3/value').read()
 		if value == '':
 			return 0
 		val = int(value, 10)
@@ -117,7 +108,6 @@ class Ltc2992:
 
 	def p5v_power_good(self):
 		value = os.popen('cat /sys/class/gpio/' + self._gpio_name + '4/value').read()
-		# value = os.popen('grep "" ~/adar1000/gpio/' + self._gpio_name + '4/value').read()
 		if value == '':
 			return 0
 		val = int(value, 10)
@@ -129,7 +119,6 @@ class GPIOS:
 
 	def get_device(self, dev_label):
 		devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/label').read()
-		# devices = os.popen('grep "" ~/adar1000/iio/iio\:device*/label').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if dev_label in line:
@@ -204,7 +193,7 @@ class Stingray:
 			self._name = name
 
 		def initialize(self, iio, pa_off=-2.5, pa_on=-2.5, lna_off=-2, lna_on=-2):
-
+			# print('Initialize device: ' + self._name)
 			# Set the bias currents
 			iio.write_reg(self._name, self.BIAS_CURRENT_RX_LNA_REG, 0x08)
 			iio.write_reg(self._name, self.BIAS_CURRENT_RX_REG, 0x55)
@@ -291,7 +280,6 @@ class Stingray:
 		# If Rev.A, there's no way to check on the rails directly, we have to rely on SPI readback
 		if self._revision == 'A':
 			devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/name').read()
-			# devices = os.popen('grep "" ~/adar1000/iio/iio\:device*/name').read()
 			devices = devices.split(sep="\n")
 			for line in devices:
 				if 'adar1000' in line:
@@ -315,7 +303,6 @@ class Stingray:
 
 	def get_devices(self):
 		devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/name').read()
-		# devices = os.popen('grep "" ~/adar1000/iio/iio\:device*/name').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if 'adar1000' in line:
@@ -380,6 +367,19 @@ class Stingray:
 
 			print("Stingray power: Power down sequence succeeded")
 
+	def bind_devices(self):
+		os.popen('echo -n "spi1.1" > /sys/bus/spi/drivers/adar1000/unbind').read()
+		os.popen('echo -n "spi1.1" > /sys/bus/spi/drivers/adar1000/bind').read()
+
+		os.popen('echo -n "spi1.2" > /sys/bus/spi/drivers/adar1000/unbind').read()
+		os.popen('echo -n "spi1.2" > /sys/bus/spi/drivers/adar1000/bind').read()
+
+		os.popen('echo -n "spi1.3" > /sys/bus/spi/drivers/adar1000/unbind').read()
+		os.popen('echo -n "spi1.3" > /sys/bus/spi/drivers/adar1000/bind').read()
+
+		os.popen('echo -n "spi1.4" > /sys/bus/spi/drivers/adar1000/unbind').read()
+		os.popen('echo -n "spi1.4" > /sys/bus/spi/drivers/adar1000/bind').read()
+
 	def powerup(self, enable_5v=True, **kwargs):
 		# Get any keywords that were given
 		pa_off = kwargs.get('pa_off', -2.5)
@@ -402,7 +402,8 @@ class Stingray:
 
 					if loops > 50:
 						raise SystemError("Stingray power: Power sequencer PG pin never went high, something's wrong")
-			# todo Reload driver
+
+			self.bind_devices()
 
 			if not self.partially_powered:
 				raise SystemError("Stingray power: Board didn't power up!")
